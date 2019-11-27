@@ -12,9 +12,13 @@ function varargout = read_tab(filename, varargin)
     
     vars_read = 0;
     %% skip all comments
-    while line(1) == '#'
-        line = fgetl(file);
+    function skipcomments()
+        while line(1) == '#'
+            line = fgetl(file);
+        end
     end
+
+    skipcomments()
     %% read matrices
     while ~feof(file)
         tabinfo = split(line, ' ');
@@ -40,9 +44,7 @@ function varargout = read_tab(filename, varargin)
         
         line = fgetl(file);
         
-        while line(1) == '#'
-            line = fgetl(file);
-        end
+        skipcomments();
 
         while ~isempty(line) && ~feof(file) && line(1) == ' '
             fprintf(tempfile, line);
@@ -50,11 +52,14 @@ function varargout = read_tab(filename, varargin)
             line = fgetl(file);
         end
         
-        fprintf(tempfile, line);
-        
-        if ~feof(file)
-            line = fgetl(file);
+        if feof(file)
+            fprintf(tempfile, line);
+        else
+            if isempty(line)
+                line = fgetl(file);
+            end
         end
+        
         
         fclose(tempfile);
         
